@@ -1,12 +1,21 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.daphysikist.paritymod.mixin",
+  "package": "net.daphysikist.paritymod.mixin.features",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "leashableboats.LeashableBoats",
+    "leashableboats.BetterLeadItem",
+    "leashableboats.BetterLeashKnotEntity",
+    "leashableboats.LeashableBoatsRenderer",
+    "leashableboats.BetterClientHandler"
   ],
   "client": [
-    "ExampleMixin"
+    "leashableboats.LeashableBoats",
+    "leashableboats.BetterLeadItem",
+    "leashableboats.BetterLeashKnotEntity",
+    "leashableboats.LeashableBoatsRenderer",
+    "leashableboats.BetterClientHandler"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -4,7 +4,7 @@
   "version": "${version}",
 
   "name": "Parity Mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "A mod designed to bring bedrock parity features to java edition.",
   "authors": [
     "DaPhysikist"
   ],
