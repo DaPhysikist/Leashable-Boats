@@ -1,4 +1,4 @@
-package net.daphysikist.paritymod.mixin.interfaces;
+package net.daphysikist.leashableboats.mixin.interfaces;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.LeashKnotEntity;
@@ -15,6 +15,7 @@ import java.util.List;
 public interface BoatsInterface {
     public double getBoatYaw();
     public double getPrevBoatYaw();
+    public boolean isLeashed();
     @Nullable
     public Entity getHoldingEntity();
     public void attachLeash(Entity entity, boolean sendPacket);
@@ -22,8 +23,6 @@ public interface BoatsInterface {
     public void setHoldingEntityId(int id);
 
     public void detachLeash(boolean sendPacket, boolean dropItem);
-
-    public boolean isLeashed();
 
     public static ActionResult attachHeldBoatsToBlock(PlayerEntity player, World world, BlockPos pos) {
         LeashKnotEntity leashKnotEntity2 = null;

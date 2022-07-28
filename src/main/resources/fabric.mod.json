@@ -1,16 +1,14 @@
 {
   "schemaVersion": 1,
-  "id": "paritymod",
+  "id": "leashableboats",
   "version": "${version}",
 
-  "name": "Parity Mod",
-  "description": "A mod designed to bring bedrock parity features to java edition.",
+  "name": "Leashable Boats",
+  "description": "A mod designed to bring leashable boats to java edition.",
   "authors": [
     "DaPhysikist"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
   },
 
   "license": "MIT",
@@ -19,11 +17,11 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.daphysikist.paritymod.ParityMod"
+      "net.daphysikist.leashableboats.LeashableBoatsMod"
     ]
   },
   "mixins": [
-    "paritymod.mixins.json"
+    "leashableboats.mixins.json"
   ],
 
   "depends": {

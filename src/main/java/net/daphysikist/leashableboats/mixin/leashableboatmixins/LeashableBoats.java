@@ -1,6 +1,6 @@
-package net.daphysikist.paritymod.mixin.features.leashableboats;
+package net.daphysikist.leashableboats.mixin.leashableboatmixins;
 
-import net.daphysikist.paritymod.mixin.interfaces.BoatsInterface;
+import net.daphysikist.leashableboats.mixin.interfaces.BoatsInterface;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -93,23 +93,12 @@ import java.util.UUID;
             }
         }
 
-
-        /*@Inject(method = "interact", at = @At(value = "RETURN", ordinal = 2))
-        public ActionResult interact(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
-            if (this.getHoldingEntity() == player) {
-                this.detachLeash(true, !player.getAbilities().creativeMode);
-            }
-            return ActionResult.PASS;
-        }
-         */
-
-
         @Override
         public ActionResult interact(PlayerEntity player, Hand hand) {
             ActionResult actionResult;
             ItemStack itemStack = player.getStackInHand(hand);
             if (player.shouldCancelInteraction()) {
-                if (this.getHoldingEntity() == player) {
+                if (itemStack.isOf(Items.LEAD) && this.getHoldingEntity() == player) {
                     this.detachLeash(true, !player.getAbilities().creativeMode);
                 }
                 else if (itemStack.isOf(Items.LEAD) && this.canBeLeashedBy(player)) {
@@ -119,11 +108,11 @@ import java.util.UUID;
                 }
                 return ActionResult.PASS;
             }
-            if (this.getHoldingEntity() == player) {
-                this.detachLeash(true, !player.getAbilities().creativeMode);
-            }
             if (this.ticksUnderwater < 60.0f) {
                 if (!this.world.isClient) {
+                    if (this.getHoldingEntity() == player) {
+                        this.detachLeash(true, !player.getAbilities().creativeMode);
+                    }
                     return player.startRiding(this) ? ActionResult.CONSUME : ActionResult.PASS;
                 }
                 return ActionResult.SUCCESS;
@@ -276,4 +265,6 @@ import java.util.UUID;
         public double getPrevBoatYaw(){
             return prevBoatYaw;
         }
+
+        public float getTicksUnderwater(){return ticksUnderwater;}
     }

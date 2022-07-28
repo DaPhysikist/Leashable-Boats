@@ -1,8 +1,6 @@
-package net.daphysikist.paritymod.mixin.features.leashableboats;
+package net.daphysikist.leashableboats.mixin.leashableboatmixins;
 
-import net.daphysikist.paritymod.mixin.interfaces.BoatsInterface;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.daphysikist.leashableboats.mixin.interfaces.BoatsInterface;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
@@ -16,7 +14,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(ClientPlayNetworkHandler.class)
-@Environment(value= EnvType.CLIENT)
+//@Environment(value= EnvType.CLIENT)
 public abstract class BetterClientHandler implements ClientPlayPacketListener {
     @Shadow
     private MinecraftClient client;

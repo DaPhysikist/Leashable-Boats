@@ -1,6 +1,6 @@
-package net.daphysikist.paritymod.mixin.features.leashableboats;
+package net.daphysikist.leashableboats.mixin.leashableboatmixins;
 
-import net.daphysikist.paritymod.mixin.interfaces.BoatsInterface;
+import net.daphysikist.leashableboats.mixin.interfaces.BoatsInterface;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -25,6 +25,15 @@ public abstract class BetterLeadItem extends Item {
         World world = context.getWorld();
         BlockState blockState = world.getBlockState(blockPos = context.getBlockPos());
         if (blockState.isIn(BlockTags.FENCES)) {
+            PlayerEntity playerEntity = context.getPlayer();
+            if (!world.isClient && playerEntity != null) {
+                LeadItem.attachHeldMobsToBlock(playerEntity, world, blockPos);
+                BoatsInterface.attachHeldBoatsToBlock(playerEntity, world, blockPos);
+            }
+            world.emitGameEvent(GameEvent.BLOCK_ATTACH, blockPos, GameEvent.Emitter.of(playerEntity));
+            return ActionResult.success(world.isClient);
+        }
+        else if (blockState.isIn(BlockTags.WALLS)) {
             PlayerEntity playerEntity = context.getPlayer();
             if (!world.isClient && playerEntity != null) {
                 LeadItem.attachHeldMobsToBlock(playerEntity, world, blockPos);

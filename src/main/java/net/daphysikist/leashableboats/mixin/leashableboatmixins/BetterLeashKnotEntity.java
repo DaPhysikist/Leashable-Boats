@@ -1,12 +1,13 @@
-package net.daphysikist.paritymod.mixin.features.leashableboats;
+package net.daphysikist.leashableboats.mixin.leashableboatmixins;
 
-import net.daphysikist.paritymod.mixin.interfaces.BoatsInterface;
+import net.daphysikist.leashableboats.mixin.interfaces.BoatsInterface;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.AbstractDecorationEntity;
 import net.minecraft.entity.decoration.LeashKnotEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
+import net.minecraft.tag.BlockTags;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Box;
@@ -61,5 +62,16 @@ public abstract class BetterLeashKnotEntity extends AbstractDecorationEntity {
             }
         }
         return ActionResult.CONSUME;
+    }
+
+    @Override
+    public boolean canStayAttached() {
+        if (this.world.getBlockState(this.attachmentPos).isIn(BlockTags.FENCES)){
+            return true;
+        }
+        else if (this.world.getBlockState(this.attachmentPos).isIn(BlockTags.WALLS)){
+            return true;
+        }
+        return false;
     }
 }

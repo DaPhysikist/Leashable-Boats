@@ -1,6 +1,6 @@
-package net.daphysikist.paritymod.mixin.features.leashableboats;
+package net.daphysikist.leashableboats.mixin.leashableboatmixins;
 
-import net.daphysikist.paritymod.mixin.interfaces.BoatsInterface;
+import net.daphysikist.leashableboats.mixin.interfaces.BoatsInterface;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.LightmapTextureManager;
