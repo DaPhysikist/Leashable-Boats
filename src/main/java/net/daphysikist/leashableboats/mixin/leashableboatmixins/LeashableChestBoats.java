@@ -2,6 +2,7 @@ package net.daphysikist.leashableboats.mixin.leashableboatmixins;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.RideableInventory;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.entity.vehicle.ChestBoatEntity;
@@ -54,5 +55,10 @@ public abstract class LeashableChestBoats extends LeashableBoats implements Ride
             return ActionResult.SUCCESS;
         }
         return ActionResult.PASS;
+    }
+
+    public void dropItems(DamageSource source) {
+        super.dropItems(source);
+        this.onBroken(source, this.world, this);
     }
 }

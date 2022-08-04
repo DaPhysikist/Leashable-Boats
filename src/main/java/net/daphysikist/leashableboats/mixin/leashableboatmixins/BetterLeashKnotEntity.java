@@ -39,8 +39,8 @@ public abstract class BetterLeashKnotEntity extends AbstractDecorationEntity {
         }
 
        for (BoatEntity boatEntity : boatlist) {
-            if (((BoatsInterface)(Object) boatEntity).getHoldingEntity() != player) continue;
-           ((BoatsInterface)(Object) boatEntity).attachLeash(this, true);
+            if (((BoatsInterface) boatEntity).getHoldingEntity() != player) continue;
+           ((BoatsInterface) boatEntity).attachLeash(this, true);
             bl = true;
         }
 
@@ -53,11 +53,10 @@ public abstract class BetterLeashKnotEntity extends AbstractDecorationEntity {
                 }
             }
 
-
             if (player.getAbilities().creativeMode) {
                 for (BoatEntity boatEntity : boatlist) {
-                    if (!((BoatsInterface) boatEntity).isLeashed() || ((BoatsInterface)(Object) boatEntity).getHoldingEntity() != this) continue;
-                    ((BoatsInterface)(Object) boatEntity).detachLeash(true, false);
+                    if (!((BoatsInterface) boatEntity).isLeashed() || ((BoatsInterface) boatEntity).getHoldingEntity() != this) continue;
+                    ((BoatsInterface) boatEntity).detachLeash(true, false);
                 }
             }
         }
@@ -69,9 +68,6 @@ public abstract class BetterLeashKnotEntity extends AbstractDecorationEntity {
         if (this.world.getBlockState(this.attachmentPos).isIn(BlockTags.FENCES)){
             return true;
         }
-        else if (this.world.getBlockState(this.attachmentPos).isIn(BlockTags.WALLS)){
-            return true;
-        }
-        return false;
+        else return this.world.getBlockState(this.attachmentPos).isIn(BlockTags.WALLS);
     }
 }

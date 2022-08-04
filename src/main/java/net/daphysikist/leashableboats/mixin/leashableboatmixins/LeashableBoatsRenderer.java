@@ -3,6 +3,8 @@ package net.daphysikist.leashableboats.mixin.leashableboatmixins;
 import net.daphysikist.leashableboats.mixin.interfaces.BoatsInterface;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -92,5 +94,19 @@ public abstract class LeashableBoatsRenderer<B extends BoatEntity> extends Entit
         float w = h * m;
         vertexConsumer.vertex(positionMatrix, u - k, v + j, w + l).color(r, s, t, 1.0f).light(p).next();
         vertexConsumer.vertex(positionMatrix, u + k, v + i - j, w - l).color(r, s, t, 1.0f).light(p).next();
+    }
+
+    @Override
+    protected boolean hasLabel(Entity boatEntity) {
+        double d = this.dispatcher.getSquaredDistanceToCamera(boatEntity);
+        float f = boatEntity.isSneaky() ? 32.0F : 64.0F;
+        if (d >= (double)(f * f)) {
+            return false;
+        } else {
+            MinecraftClient minecraftClient = MinecraftClient.getInstance();
+            ClientPlayerEntity clientPlayerEntity = minecraftClient.player;
+            boolean bl = !boatEntity.isInvisibleTo(clientPlayerEntity);
+            return MinecraftClient.isHudEnabled() && bl && !boatEntity.hasPassenger(clientPlayerEntity) && boatEntity.hasCustomName();
+        }
     }
 }

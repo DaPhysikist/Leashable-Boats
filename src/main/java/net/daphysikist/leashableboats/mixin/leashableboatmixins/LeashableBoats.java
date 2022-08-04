@@ -4,6 +4,7 @@ import net.daphysikist.leashableboats.mixin.interfaces.BoatsInterface;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.decoration.AbstractDecorationEntity;
 import net.minecraft.entity.decoration.LeashKnotEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -18,7 +19,9 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,7 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.UUID;
 
-    @Mixin(value = BoatEntity.class, priority = 800)
+@Mixin(value = BoatEntity.class, priority = 800)
     public abstract class LeashableBoats extends Entity implements BoatsInterface {
         private static final String LEASH_KEY = "Leash";
 
@@ -54,6 +57,43 @@ import java.util.UUID;
             super(type, world);
         }
 
+        public boolean damage(DamageSource source, float amount) {
+            if (!this.world.isClient && !this.isRemoved()) {
+                if (this.isInvulnerableTo(source)) {
+                    return false;
+                } else {
+                    ((BoatEntity)(Object)this).setDamageWobbleSide(-((BoatEntity)(Object)this).getDamageWobbleSide());
+                    ((BoatEntity)(Object)this).setDamageWobbleTicks(10);
+                    this.scheduleVelocityUpdate();
+                    ((BoatEntity)(Object)this).setDamageWobbleStrength(((BoatEntity)(Object)this).getDamageWobbleStrength() + amount * 10.0F);
+                    this.emitGameEvent(GameEvent.ENTITY_DAMAGE, source.getAttacker());
+                    boolean bl = source.getAttacker() instanceof PlayerEntity && ((PlayerEntity)source.getAttacker()).getAbilities().creativeMode;
+                    if (bl || ((BoatEntity)(Object)this).getDamageWobbleStrength() > 40.0F) {
+                        this.removeAllPassengers();
+                        if (bl && !this.hasCustomName()) {
+                            this.discard();
+                        } else {
+                            this.dropItems(source);
+                        }
+                    }
+
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        }
+
+        public void dropItems(DamageSource damageSource) {
+            this.kill();
+            if (this.world.getGameRules().getBoolean(GameRules.DO_ENTITY_DROPS)) {
+                ItemStack itemStack = new ItemStack(((BoatEntity)(Object)this).asItem());
+                if (this.hasCustomName()) {
+                    itemStack.setCustomName(this.getCustomName());
+                }
+                this.dropStack(itemStack);
+            }
+        }
 
         @Inject(method = "tick", at = @At("TAIL"))
         public void injectTick(CallbackInfo cir) {
@@ -106,7 +146,14 @@ import java.util.UUID;
                     itemStack.decrement(1);
                     return ActionResult.success(this.world.isClient);
                 }
-                return ActionResult.PASS;
+                else {
+                    actionResult = this.interactWithItem(player, hand);
+                    if (actionResult.isAccepted()) {
+                        return actionResult;
+                    } else {
+                        return ActionResult.PASS;
+                    }
+                }
             }
             if (this.ticksUnderwater < 60.0f) {
                 if (!this.world.isClient) {
@@ -134,7 +181,9 @@ import java.util.UUID;
                 itemStack.decrement(1);
                 return ActionResult.success(this.world.isClient);
             }
-            return ActionResult.PASS;
+            else {
+                return ActionResult.PASS;
+            }
         }
 
         protected void updateLeash() {
