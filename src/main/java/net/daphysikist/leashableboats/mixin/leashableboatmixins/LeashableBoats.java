@@ -58,7 +58,7 @@ import java.util.UUID;
         }
 
         public boolean damage(DamageSource source, float amount) {
-            if (!this.world.isClient && !this.isRemoved()) {
+            if (!this.getWorld().isClient && !this.isRemoved()) {
                 if (this.isInvulnerableTo(source)) {
                     return false;
                 } else {
@@ -86,7 +86,7 @@ import java.util.UUID;
 
         public void dropItems(DamageSource damageSource) {
             this.kill();
-            if (this.world.getGameRules().getBoolean(GameRules.DO_ENTITY_DROPS)) {
+            if (this.getWorld().getGameRules().getBoolean(GameRules.DO_ENTITY_DROPS)) {
                 ItemStack itemStack = new ItemStack(((BoatEntity)(Object)this).asItem());
                 if (this.hasCustomName()) {
                     itemStack.setCustomName(this.getCustomName());
@@ -97,7 +97,7 @@ import java.util.UUID;
 
         @Inject(method = "tick", at = @At("TAIL"))
         public void injectTick(CallbackInfo cir) {
-            if (!this.world.isClient) {
+            if (!this.getWorld().isClient) {
                 this.updateLeash();
             }
         }
@@ -144,7 +144,7 @@ import java.util.UUID;
                 else if (itemStack.isOf(Items.LEAD) && this.canBeLeashedBy(player)) {
                     this.attachLeash(player, true);
                     itemStack.decrement(1);
-                    return ActionResult.success(this.world.isClient);
+                    return ActionResult.success(this.getWorld().isClient);
                 }
                 else {
                     actionResult = this.interactWithItem(player, hand);
@@ -156,7 +156,7 @@ import java.util.UUID;
                 }
             }
             if (this.ticksUnderwater < 60.0f) {
-                if (!this.world.isClient) {
+                if (!this.getWorld().isClient) {
                     if (this.getHoldingEntity() == player) {
                         this.detachLeash(true, !player.getAbilities().creativeMode);
                     }
@@ -179,7 +179,7 @@ import java.util.UUID;
             if (itemStack.isOf(Items.LEAD) && this.canBeLeashedBy(player)) {
                 this.attachLeash(player, true);
                 itemStack.decrement(1);
-                return ActionResult.success(this.world.isClient);
+                return ActionResult.success(this.getWorld().isClient);
             }
             else {
                 return ActionResult.PASS;
@@ -197,7 +197,7 @@ import java.util.UUID;
                 this.detachLeash(true, true);
             }
             Entity entity = this.getHoldingEntity();
-            if (entity != null && entity.world == this.world) {
+            if (entity != null && entity.getWorld() == this.getWorld()) {
                 this.setPositionTarget(entity.getBlockPos(), 5);
                 float f = this.distanceTo(entity);
                 this.updateForLeashLength(f);
@@ -217,11 +217,11 @@ import java.util.UUID;
             if (this.holdingEntity != null) {
                 this.holdingEntity = null;
                 this.leashNbt = null;
-                if (!this.world.isClient && dropItem) {
+                if (!this.getWorld().isClient && dropItem) {
                     this.dropItem(Items.LEAD);
                 }
-                if (!this.world.isClient && sendPacket && this.world instanceof ServerWorld) {
-                    ((ServerWorld)this.world).getChunkManager().sendToOtherNearbyPlayers(this, new EntityAttachS2CPacket(this, null));
+                if (!this.getWorld().isClient && sendPacket && this.getWorld() instanceof ServerWorld) {
+                    ((ServerWorld) this.getWorld()).getChunkManager().sendToOtherNearbyPlayers(this, new EntityAttachS2CPacket(this, null));
                 }
             }
         }
@@ -238,8 +238,8 @@ import java.util.UUID;
         @Override
         @Nullable
         public Entity getHoldingEntity() {
-            if (this.holdingEntity == null && this.holdingEntityId != 0 && this.world.isClient) {
-                this.holdingEntity = this.world.getEntityById(this.holdingEntityId);
+            if (this.holdingEntity == null && this.holdingEntityId != 0 && this.getWorld().isClient) {
+                this.holdingEntity = this.getWorld().getEntityById(this.holdingEntityId);
             }
             return this.holdingEntity;
         }
@@ -247,8 +247,8 @@ import java.util.UUID;
         public void attachLeash(Entity entity, boolean sendPacket) {
             this.holdingEntity = entity;
             this.leashNbt = null;
-            if (!this.world.isClient && sendPacket && this.world instanceof ServerWorld) {
-                ((ServerWorld)this.world).getChunkManager().sendToOtherNearbyPlayers(this, new EntityAttachS2CPacket(this, this.holdingEntity));
+            if (!this.getWorld().isClient && sendPacket && this.getWorld() instanceof ServerWorld) {
+                ((ServerWorld) this.getWorld()).getChunkManager().sendToOtherNearbyPlayers(this, new EntityAttachS2CPacket(this, this.holdingEntity));
             }
             if (this.hasVehicle()) {
                 this.stopRiding();
@@ -270,17 +270,17 @@ import java.util.UUID;
         }
 
         private void readLeashNbt() {
-            if (this.leashNbt != null && this.world instanceof ServerWorld) {
+            if (this.leashNbt != null && this.getWorld() instanceof ServerWorld) {
                 if (this.leashNbt.containsUuid("UUID")) {
                     UUID uUID = this.leashNbt.getUuid("UUID");
-                    Entity entity = ((ServerWorld)this.world).getEntity(uUID);
+                    Entity entity = ((ServerWorld) this.getWorld()).getEntity(uUID);
                     if (entity != null) {
                         this.attachLeash(entity, true);
                         return;
                     }
                 } else if (this.leashNbt.contains("X", NbtElement.NUMBER_TYPE) && this.leashNbt.contains("Y", NbtElement.NUMBER_TYPE) && this.leashNbt.contains("Z", NbtElement.NUMBER_TYPE)) {
                     BlockPos blockPos = NbtHelper.toBlockPos(this.leashNbt);
-                    this.attachLeash(LeashKnotEntity.getOrCreate(this.world, blockPos), true);
+                    this.attachLeash(LeashKnotEntity.getOrCreate(this.getWorld(), blockPos), true);
                     return;
                 }
                 if (this.age > 100) {

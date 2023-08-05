@@ -36,7 +36,7 @@ public abstract class LeashableChestBoats extends LeashableBoats implements Ride
             else if (itemStack.isOf(Items.LEAD) && this.canBeLeashedBy(player)) {
                 this.attachLeash(player, true);
                 itemStack.decrement(1);
-                return ActionResult.success(this.world.isClient);
+                return ActionResult.success(this.getWorld().isClient);
             }
             else {
                 actionResult = this.open(player);
@@ -57,7 +57,7 @@ public abstract class LeashableChestBoats extends LeashableBoats implements Ride
             return actionResult;
         }
         else if (this.ticksUnderwater < 60.0f) {
-            if (!this.world.isClient) {
+            if (!this.getWorld().isClient) {
                 if (this.getHoldingEntity() == player) {
                     this.detachLeash(true, !player.getAbilities().creativeMode);
                 }
@@ -70,6 +70,6 @@ public abstract class LeashableChestBoats extends LeashableBoats implements Ride
 
     public void dropItems(DamageSource source) {
         super.dropItems(source);
-        this.onBroken(source, this.world, this);
+        this.onBroken(source, this.getWorld(), this);
     }
 }

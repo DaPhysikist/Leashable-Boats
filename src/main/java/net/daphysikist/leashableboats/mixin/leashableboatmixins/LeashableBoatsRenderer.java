@@ -69,8 +69,8 @@ public abstract class LeashableBoatsRenderer<B extends BoatEntity> extends Entit
         int q = this.getBlockLight(entity, blockPos);
         //int r = (this.dispatcher.getRenderer(holdingEntity).getBlockLight(holdingEntity, blockPos2);
         int r = this.getBlockLight(holdingEntity, blockPos2);
-        int s = (entity).world.getLightLevel(LightType.SKY, blockPos);
-        int t = (entity).world.getLightLevel(LightType.SKY, blockPos2);
+        int s = (entity).getWorld().getLightLevel(LightType.SKY, blockPos);
+        int t = (entity).getWorld().getLightLevel(LightType.SKY, blockPos2);
         for (u = 0; u <= 24; ++u) {
             LeashableBoatsRenderer.renderLeashPiece(vertexConsumer, matrix4f, j, k, l, q, r, s, t, 0.025f, 0.025f, o, p, u, false);
         }

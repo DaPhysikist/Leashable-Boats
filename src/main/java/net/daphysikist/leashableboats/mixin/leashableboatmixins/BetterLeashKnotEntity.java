@@ -12,25 +12,26 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
+import net.minecraft.world.event.GameEvent;
 import org.spongepowered.asm.mixin.Mixin;
 
 import java.util.List;
 
 @Mixin(LeashKnotEntity.class)
 public abstract class BetterLeashKnotEntity extends AbstractDecorationEntity {
-    protected BetterLeashKnotEntity(EntityType<? extends AbstractDecorationEntity> entityType, World world) {
+    protected BetterLeashKnotEntity(EntityType<? extends LeashKnotEntity> entityType, World world) {
         super(entityType, world);
     }
 
     @Override
     public ActionResult interact(PlayerEntity player, Hand hand) {
-        if (this.world.isClient) {
+        if (this.getWorld().isClient) {
             return ActionResult.SUCCESS;
         }
         boolean bl = false;
         double d = 7.0;
-        List<MobEntity> list = this.world.getNonSpectatingEntities(MobEntity.class, new Box(this.getX() - 7.0, this.getY() - 7.0, this.getZ() - 7.0, this.getX() + 7.0, this.getY() + 7.0, this.getZ() + 7.0));
-        List<BoatEntity> boatlist = world.getNonSpectatingEntities(BoatEntity.class, new Box(this.getX()  - 7.0, this.getY()  - 7.0, this.getZ()  - 7.0, this.getX()  + 7.0, this.getY()  + 7.0, this.getZ()  + 7.0));
+        List<MobEntity> list = this.getWorld().getNonSpectatingEntities(MobEntity.class, new Box(this.getX() - 7.0, this.getY() - 7.0, this.getZ() - 7.0, this.getX() + 7.0, this.getY() + 7.0, this.getZ() + 7.0));
+        List<BoatEntity> boatlist = getWorld().getNonSpectatingEntities(BoatEntity.class, new Box(this.getX()  - 7.0, this.getY()  - 7.0, this.getZ()  - 7.0, this.getX()  + 7.0, this.getY()  + 7.0, this.getZ()  + 7.0));
 
         for (MobEntity mobEntity : list) {
             if (mobEntity.getHoldingEntity() != player) continue;
@@ -43,7 +44,7 @@ public abstract class BetterLeashKnotEntity extends AbstractDecorationEntity {
            ((BoatsInterface) boatEntity).attachLeash(this, true);
             bl = true;
         }
-
+        boolean bl2 = false;
         if (!bl) {
             this.discard();
             if (player.getAbilities().creativeMode) {
@@ -60,14 +61,16 @@ public abstract class BetterLeashKnotEntity extends AbstractDecorationEntity {
                 }
             }
         }
+        if (bl || bl2) {
+            this.emitGameEvent(GameEvent.BLOCK_ATTACH, player);
+        }
         return ActionResult.CONSUME;
     }
-
     @Override
     public boolean canStayAttached() {
-        if (this.world.getBlockState(this.attachmentPos).isIn(BlockTags.FENCES)){
+        if (this.getWorld().getBlockState(this.attachmentPos).isIn(BlockTags.FENCES)){
             return true;
         }
-        else return this.world.getBlockState(this.attachmentPos).isIn(BlockTags.WALLS);
+        else return this.getWorld().getBlockState(this.attachmentPos).isIn(BlockTags.WALLS);
     }
 }
