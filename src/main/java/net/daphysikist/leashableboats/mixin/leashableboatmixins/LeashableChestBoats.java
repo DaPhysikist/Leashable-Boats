@@ -3,6 +3,7 @@ package net.daphysikist.leashableboats.mixin.leashableboatmixins;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.RideableInventory;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.mob.PiglinBrain;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.entity.vehicle.ChestBoatEntity;
@@ -12,6 +13,7 @@ import net.minecraft.item.Items;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
+import net.minecraft.world.event.GameEvent;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(ChestBoatEntity.class)
@@ -37,13 +39,22 @@ public abstract class LeashableChestBoats extends LeashableBoats implements Ride
                 return ActionResult.success(this.world.isClient);
             }
             else {
-                return this.open(this::emitGameEvent, player);
+                actionResult = this.open(player);
+                if (actionResult.isAccepted()) {
+                    this.emitGameEvent(GameEvent.CONTAINER_OPEN, player);
+                    PiglinBrain.onGuardedBlockInteracted(player, true);
+                }
+                return actionResult;
             }
-            return ActionResult.PASS;
         }
-        if (!this.canAddPassenger(player))
+        else if (!this.canAddPassenger(player))
         {
-            return this.open(this::emitGameEvent, player);
+            actionResult = this.open(player);
+            if (actionResult.isAccepted()) {
+                this.emitGameEvent(GameEvent.CONTAINER_OPEN, player);
+                PiglinBrain.onGuardedBlockInteracted(player, true);
+            }
+            return actionResult;
         }
         else if (this.ticksUnderwater < 60.0f) {
             if (!this.world.isClient) {
@@ -54,7 +65,7 @@ public abstract class LeashableChestBoats extends LeashableBoats implements Ride
             }
             return ActionResult.SUCCESS;
         }
-        return ActionResult.PASS;
+        return super.interact(player, hand);
     }
 
     public void dropItems(DamageSource source) {

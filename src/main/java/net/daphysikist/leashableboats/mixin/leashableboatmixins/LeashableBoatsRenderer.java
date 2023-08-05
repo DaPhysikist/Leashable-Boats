@@ -61,11 +61,11 @@ public abstract class LeashableBoatsRenderer<B extends BoatEntity> extends Entit
         float m = 0.025f;
         VertexConsumer vertexConsumer = provider.getBuffer(RenderLayer.getLeash());
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
-        float n = MathHelper.fastInverseSqrt(j * j + l * l) * 0.025f / 2.0f;
+        float n = MathHelper.inverseSqrt(j * j + l * l) * 0.025f / 2.0f;
         float o = l * n;
         float p = j * n;
-        BlockPos blockPos = new BlockPos((entity).getCameraPosVec(tickDelta));
-        BlockPos blockPos2 = new BlockPos(holdingEntity.getCameraPosVec(tickDelta));
+        BlockPos blockPos = BlockPos.ofFloored((entity).getCameraPosVec(tickDelta));
+        BlockPos blockPos2 = BlockPos.ofFloored(holdingEntity.getCameraPosVec(tickDelta));
         int q = this.getBlockLight(entity, blockPos);
         //int r = (this.dispatcher.getRenderer(holdingEntity).getBlockLight(holdingEntity, blockPos2);
         int r = this.getBlockLight(holdingEntity, blockPos2);
