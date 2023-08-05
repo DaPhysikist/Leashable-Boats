@@ -4,7 +4,6 @@ import net.daphysikist.leashableboats.mixin.interfaces.BoatsInterface;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.AbstractDecorationEntity;
 import net.minecraft.entity.decoration.LeashKnotEntity;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.registry.tag.BlockTags;
@@ -12,9 +11,11 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
 import org.spongepowered.asm.mixin.Mixin;
-
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.List;
 
 @Mixin(LeashKnotEntity.class)
@@ -23,54 +24,18 @@ public abstract class BetterLeashKnotEntity extends AbstractDecorationEntity {
         super(entityType, world);
     }
 
-    @Override
-    public ActionResult interact(PlayerEntity player, Hand hand) {
-        if (this.getWorld().isClient) {
-            return ActionResult.SUCCESS;
-        }
-        boolean bl = false;
-        double d = 7.0;
-        List<MobEntity> list = this.getWorld().getNonSpectatingEntities(MobEntity.class, new Box(this.getX() - 7.0, this.getY() - 7.0, this.getZ() - 7.0, this.getX() + 7.0, this.getY() + 7.0, this.getZ() + 7.0));
+    @Inject(method = "interact", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getNonSpectatingEntities(Ljava/lang/Class;Lnet/minecraft/util/math/Box;)Ljava/util/List;", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
+    protected void boatInteract(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir, boolean bl, double d) {
         List<BoatEntity> boatlist = getWorld().getNonSpectatingEntities(BoatEntity.class, new Box(this.getX()  - 7.0, this.getY()  - 7.0, this.getZ()  - 7.0, this.getX()  + 7.0, this.getY()  + 7.0, this.getZ()  + 7.0));
-
-        for (MobEntity mobEntity : list) {
-            if (mobEntity.getHoldingEntity() != player) continue;
-            mobEntity.attachLeash(this, true);
-            bl = true;
-        }
-
-       for (BoatEntity boatEntity : boatlist) {
+        for (BoatEntity boatEntity : boatlist) {
             if (((BoatsInterface) boatEntity).getHoldingEntity() != player) continue;
-           ((BoatsInterface) boatEntity).attachLeash(this, true);
+            ((BoatsInterface) boatEntity).attachLeash(this, true);
             bl = true;
         }
-        boolean bl2 = false;
-        if (!bl) {
-            this.discard();
-            if (player.getAbilities().creativeMode) {
-                for (MobEntity mobEntity : list) {
-                    if (!mobEntity.isLeashed() || mobEntity.getHoldingEntity() != this) continue;
-                    mobEntity.detachLeash(true, false);
-                }
-            }
-
-            if (player.getAbilities().creativeMode) {
-                for (BoatEntity boatEntity : boatlist) {
-                    if (!((BoatsInterface) boatEntity).isLeashed() || ((BoatsInterface) boatEntity).getHoldingEntity() != this) continue;
-                    ((BoatsInterface) boatEntity).detachLeash(true, false);
-                }
-            }
-        }
-        if (bl || bl2) {
-            this.emitGameEvent(GameEvent.BLOCK_ATTACH, player);
-        }
-        return ActionResult.CONSUME;
     }
-    @Override
-    public boolean canStayAttached() {
-        if (this.getWorld().getBlockState(this.attachmentPos).isIn(BlockTags.FENCES)){
-            return true;
-        }
-        else return this.getWorld().getBlockState(this.attachmentPos).isIn(BlockTags.WALLS);
+
+    @Inject(method = "canStayAttached", at = @At("RETURN"), cancellable = true)
+    protected void wallStayAttached(CallbackInfoReturnable<Boolean> cir) {
+        cir.setReturnValue(this.getWorld().getBlockState(this.attachmentPos).isIn(BlockTags.FENCES) || this.getWorld().getBlockState(this.attachmentPos).isIn(BlockTags.WALLS));
     }
 }

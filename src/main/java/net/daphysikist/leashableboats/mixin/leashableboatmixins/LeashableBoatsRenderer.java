@@ -28,13 +28,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(BoatEntityRenderer.class)
 @Environment(value= EnvType.CLIENT)
 public abstract class LeashableBoatsRenderer<B extends BoatEntity> extends EntityRenderer<Entity> {
-    private static final int LEASH_PIECE_COUNT = 24;
-
     protected LeashableBoatsRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
     }
 
-    @Inject(method = "render", at = @At("TAIL"))
+    @Inject(method = "render*", at = @At("TAIL"))
     public void injectRender(B boatEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo cir) {
         Entity entity = ((BoatsInterface) boatEntity).getHoldingEntity();
         if (entity == null) {
