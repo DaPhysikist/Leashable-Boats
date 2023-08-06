@@ -4,12 +4,12 @@ import net.minecraft.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 public interface BoatsInterface {
-    public double getBoatYaw();
-    public double getPrevBoatYaw();
-    public boolean isLeashed();
+    double getBoatYaw();
+    double getPrevBoatYaw();
+    boolean isLeashed();
     @Nullable
-    public Entity getHoldingEntity();
-    public void attachLeash(Entity entity, boolean sendPacket);
-    public void setHoldingEntityId(int id);
-    public void detachLeash(boolean sendPacket, boolean dropItem);
+    Entity getHoldingEntity();
+    void attachLeash(Entity entity, boolean sendPacket);
+    void setHoldingEntityId(int id);
+    void detachLeash(boolean sendPacket, boolean dropItem);
 }

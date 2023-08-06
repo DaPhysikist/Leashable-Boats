@@ -28,27 +28,21 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
 import java.util.UUID;
 
 @Mixin(value = BoatEntity.class, priority = 800)
     public abstract class LeashableBoats extends Entity implements BoatsInterface {
         private static final String LEASH_KEY = "Leash";
-
         @Nullable
         private Entity holdingEntity;
         private int holdingEntityId;
-
         @Shadow
         private double boatYaw;
-
         private double prevBoatYaw;
-
-        @Shadow
-        private float ticksUnderwater;
-
         @Nullable
         private NbtCompound leashNbt;
-
         private BlockPos positionTarget = BlockPos.ORIGIN;
         private float positionTargetRange = -1.0f;
 
@@ -56,6 +50,7 @@ import java.util.UUID;
             super(type, world);
         }
 
+        @Override
         public boolean damage(DamageSource source, float amount) {
             if (!this.getWorld().isClient && !this.isRemoved()) {
                 if (this.isInvulnerableTo(source)) {
@@ -132,38 +127,25 @@ import java.util.UUID;
             }
         }
 
-        @Override
-        public ActionResult interact(PlayerEntity player, Hand hand) {
-            ActionResult actionResult;
+        @Inject(method = "interact", at = @At(value = "RETURN", ordinal = 0), cancellable = true)
+        protected void injectInteract(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
             ItemStack itemStack = player.getStackInHand(hand);
-            if (player.shouldCancelInteraction()) {
-                if (itemStack.isOf(Items.LEAD) && this.getHoldingEntity() == player) {
-                    this.detachLeash(true, !player.getAbilities().creativeMode);
-                }
-                else if (itemStack.isOf(Items.LEAD) && this.canBeLeashedBy(player)) {
-                    this.attachLeash(player, true);
-                    itemStack.decrement(1);
-                    return ActionResult.success(this.getWorld().isClient);
-                }
-                else {
-                    actionResult = this.interactWithItem(player, hand);
-                    if (actionResult.isAccepted()) {
-                        return actionResult;
-                    } else {
-                        return ActionResult.PASS;
-                    }
-                }
+            if (itemStack.isOf(Items.LEAD) && this.getHoldingEntity() == player) {
+                this.detachLeash(true, !player.getAbilities().creativeMode);
+                cir.setReturnValue(ActionResult.SUCCESS);
             }
-            if (this.ticksUnderwater < 60.0f) {
-                if (!this.getWorld().isClient) {
-                    if (this.getHoldingEntity() == player) {
-                        this.detachLeash(true, !player.getAbilities().creativeMode);
-                    }
-                    return player.startRiding(this) ? ActionResult.CONSUME : ActionResult.PASS;
-                }
-                return ActionResult.SUCCESS;
+            else if (itemStack.isOf(Items.LEAD) && this.canBeLeashedBy(player)) {
+                this.attachLeash(player, true);
+                itemStack.decrement(1);
+                cir.setReturnValue(ActionResult.SUCCESS);
             }
-            return ActionResult.PASS;
+        }
+
+        @Inject(method = "interact", at = @At(value = "RETURN", ordinal = 1))
+        protected void injectInteract2(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
+            if (this.getHoldingEntity() == player) {
+                this.detachLeash(true, !player.getAbilities().creativeMode);
+            }
         }
 
         public void setPositionTarget(BlockPos target, int range) {
@@ -211,7 +193,6 @@ import java.util.UUID;
             }
         }
 
-        @Override
         public void detachLeash(boolean sendPacket, boolean dropItem) {
             if (this.holdingEntity != null) {
                 this.holdingEntity = null;
@@ -229,12 +210,10 @@ import java.util.UUID;
             return !this.isLeashed();
         }
 
-        @Override
         public boolean isLeashed() {
             return this.holdingEntity != null;
         }
 
-        @Override
         @Nullable
         public Entity getHoldingEntity() {
             if (this.holdingEntity == null && this.holdingEntityId != 0 && this.getWorld().isClient) {
@@ -298,18 +277,13 @@ import java.util.UUID;
         protected boolean shouldFollowLeash() {
             return true;
         }
-
         protected double getFollowLeashSpeed() {
             return 1.0;
         }
-
-        protected void updateForLeashLength(float leashLength) {
-        }
-
+        protected void updateForLeashLength(float leashLength) {}
         public double getBoatYaw(){
             return boatYaw;
         }
-
         public double getPrevBoatYaw(){
             return prevBoatYaw;
         }
