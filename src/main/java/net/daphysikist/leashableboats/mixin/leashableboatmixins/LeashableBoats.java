@@ -97,7 +97,7 @@ import java.util.UUID;
         }
 
         @Inject (method = "updateTrackedPositionAndAngles", at = @At("TAIL"))
-        public void injectUpdateTrackedPositionAndAngles(double x, double y, double z, float yaw, float pitch, int interpolationSteps, boolean interpolate, CallbackInfo cir){
+        public void injectUpdateTrackedPositionAndAngles(double x, double y, double z, float yaw, float pitch, int interpolationSteps, CallbackInfo cir){
             prevBoatYaw = yaw;
         }
 
